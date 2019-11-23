@@ -138,14 +138,11 @@ EOF
 systemctl daemon-reload
 systemctl enable cnode.service
 systemctl start cnode.service
-systemctl status cnode.service
-sleep 5
-systemctl restart cnode.service
 echo "Waiting for Coti Node to Start"
-sleep 15
+sleep 10
 tail -fn0 /home/coti/coti-fullnode/logs/FullNode1.log | \
 while read line ; do
-        echo "$line" 
+        echo "$line"
         echo "$line" | grep -q "COTI FULL NODE IS UP"
         if [ $? = 0 ]
         then
