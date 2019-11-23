@@ -139,6 +139,7 @@ systemctl daemon-reload
 systemctl enable cnode.service
 systemctl start cnode.service
 echo "Waiting for Coti Node to Start"
+sleep 5
 tail -fn0 /home/coti/coti-fullnode/logs/FullNode1.log | \
 while read line ; do
         echo "$line" 
