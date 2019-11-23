@@ -139,5 +139,14 @@ systemctl daemon-reload
 systemctl enable cnode.service
 systemctl start cnode.service
 echo "Waiting for Coti Node to Start"
-sleep 10
-systemctl status cnode.service
+tail -fn0 /home/coti/coti-fullnode/logs/FullNode1.log | \
+while read line ; do
+        echo "$line" 
+        echo "$line" | grep -q "COTI FULL NODE IS UP"
+        if [ $? = 0 ]
+        then
+        exit
+        fi
+done
+sleep 5
+echo "Your node is registered and running on the COTI Network"
