@@ -2,10 +2,14 @@
 
 set -eu -o pipefail # fail on error , debug all lines
 
-#read -p "What is your email address?: " email
-#read -p "What is your server name?: " servername
-#read -p "What is your wallet private key?: " pkey
-#read -p "What is your wallet seed?: " seed
+LOG_LOCATION=/root/
+exec > >(tee -i $LOG_LOCATION/cnode.log)
+exec 2>&1
+
+read -p "What is your email address?: " email
+read -p "What is your server name?: " servername
+read -p "What is your wallet private key?: " pkey
+read -p "What is your wallet seed?: " seed
 
 exec 3<>/dev/tcp/icanhazip.com/80 
 echo -e 'GET / HTTP/1.0\r\nhost: icanhazip.com\r\n\r' >&3 
@@ -14,29 +18,25 @@ do
  [ "$i" ] && serverip="$i" 
 done <&3 
 
-servername=cnode2.wolfcrypto.net
 serverurl=https://$servername
-email=test@test.com
-pkey=1
-seed=2
 
-#adduser --gecos "" --disabled-password coti
-#adduser coti sudo
-#add-apt-repository ppa:certbot/certbot -y
-#apt-get update -y && sudo apt-get upgrade -y
-#apt install software-properties-common default-jdk maven nginx certbot python-certbot-nginx ufw nano git -y
+adduser --gecos "" --disabled-password coti
+adduser coti sudo
+add-apt-repository ppa:certbot/certbot -y
+apt-get update -y && sudo apt-get upgrade -y
+apt install software-properties-common default-jdk maven nginx certbot python-certbot-nginx ufw nano git -y
 java -version
 mvn -version
-#ufw allow 22
-#ufw allow 80
-#ufw allow 443
-#ufw allow 7070
-#ufw --force enable
-#cd /home/coti/
-#git clone https://github.com/coti-io/coti-fullnode.git
-#chown -R coti: /home/coti/coti-fullnode/
-#cd /home/coti/coti-fullnode/
-#sudo -u coti mvn initialize && sudo -u coti mvn clean compile && sudo -u coti mvn -Dmaven.test.skip=true package
+ufw allow 22
+ufw allow 80
+ufw allow 443
+ufw allow 7070
+ufw --force enable
+cd /home/coti/
+git clone https://github.com/coti-io/coti-fullnode.git
+chown -R coti: /home/coti/coti-fullnode/
+cd /home/coti/coti-fullnode/
+sudo -u coti mvn initialize && sudo -u coti mvn clean compile && sudo -u coti mvn -Dmaven.test.skip=true package
 
 cat <<EOF >/home/coti/coti-fullnode/fullnode.properties
 network=TestNet
@@ -62,6 +62,16 @@ allow.transaction.monitoring=true
 whitelist.ips=127.0.0.1,0:0:0:0:0:0:0:1
 EOF
 
+FILE=/home/coti/coti-fullnode/FullNode1_clusterstamp.csv
+if [ -f "$FILE" ]; then
+    echo "$FILE already exists, no need to download"
+else 
+    echo "$FILE does not exist, downloading now"
+    wget -q --show-progress --progress=bar:force 2>&1 https://www.dropbox.com/s/rpyercs56zmay0z/FullNode1_clusterstamp.csv -P /home/coti/coti-fullnode/
+fi
+
+chown coti /home/coti/coti-fullnode/FullNode1_clusterstamp.csv
+chgrp coti /home/coti/coti-fullnode/FullNode1_clusterstamp.csv
 chown coti /home/coti/coti-fullnode/fullnode.properties
 chgrp coti /home/coti/coti-fullnode/fullnode.properties
 
@@ -109,7 +119,7 @@ sed -i "s/server_name/server_name $servername;/g" /etc/nginx/sites-enabled/coti_
 sed -i "s:ssl_certificate:ssl_certificate /etc/letsencrypt/live/$servername/fullchain.pem;:g" /etc/nginx/sites-enabled/coti_fullnode.conf
 sed -i "s:ssl_key:ssl_certificate_key /etc/letsencrypt/live/$servername/privkey.pem;:g" /etc/nginx/sites-enabled/coti_fullnode.conf
 
-sudo service nginx restart
+service nginx restart
 
 cat <<EOF >/etc/systemd/system/cnode.service
 [Unit]
@@ -124,7 +134,10 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl daemon-reload
-sudo systemctl enable cnode.service
-sudo systemctl start cnode.service
-sudo systemctl status cnode.service
+
+systemctl daemon-reload
+systemctl enable cnode.service
+systemctl start cnode.service
+echo "Waiting for Coti Node to Start"
+sleep 10
+systemctl status cnode.service
