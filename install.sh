@@ -24,7 +24,7 @@ adduser --gecos "" --disabled-password coti
 adduser coti sudo
 add-apt-repository ppa:certbot/certbot -y
 apt-get update -y && sudo apt-get upgrade -y
-apt install software-properties-common default-jdk maven nginx certbot python-certbot-nginx ufw nano git -y
+apt install software-properties-common openjdk-8-jdk maven nginx certbot python-certbot-nginx ufw nano git -y
 java -version
 mvn -version
 ufw allow 22
