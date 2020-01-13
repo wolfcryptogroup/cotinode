@@ -11,8 +11,8 @@ read -p "What is your server name?: " servername
 read -p "What is your wallet private key?: " pkey
 read -p "What is your wallet seed?: " seed
 
-exec 3<>/dev/tcp/icanhazip.com/80 
-echo -e 'GET / HTTP/1.0\r\nhost: icanhazip.com\r\n\r' >&3 
+exec 3<>/dev/tcp/ipv4.icanhazip.com/80 
+echo -e 'GET / HTTP/1.0\r\nhost: ipv4.icanhazip.com\r\n\r' >&3 
 while read i
 do
  [ "$i" ] && serverip="$i" 
