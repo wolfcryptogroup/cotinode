@@ -55,6 +55,7 @@ fee.percentage=1
 zero.fee.user.hashes=9c37d52ae10e6b42d3bb707ca237dd150165daca32bf8ef67f73d1e79ee609a9f88df0d437a5ba5a6cf7c68d63c077fa2c63a21a91fc192dfd9c1fe4b64bb959
 kycserver.public.key=c10052a39b023c8d4a3fc406a74df1742599a387c58bcea2a2093bd85103f3bd22816fa45bbfb26c1f88a112f0c0b007755eb1be1fad3b45f153adbac4752638
 kycserver.url=https://cca.coti.io
+node.manager.public.key=2fc59886c372808952766fa5a39d33d891af69c354e6a5934a258871407536d6705693099f076226ee5bf4b200422e56635a7f3ba86df636757e0ae42415f7c2
 node.manager.ip=52.59.142.53
 node.manager.port=7090
 node.manager.propagation.port=10001
@@ -126,7 +127,7 @@ cat <<EOF >/etc/systemd/system/cnode.service
 Description=COTI Fullnode Service
 [Service]
 WorkingDirectory=/home/coti/coti-fullnode/
-ExecStart=/usr/bin/java -Xmx256m -jar /home/coti/coti-fullnode/fullnode/target/fullnode-1.2.0.RELEASE.jar --spring.config.additional-location=fullnode.properties
+ExecStart=/usr/bin/java -Xmx256m -jar /home/coti/coti-fullnode/fullnode/target/fullnode-1.3.1.RELEASE.jar --spring.config.additional-location=fullnode.properties
 SuccessExitStatus=143
 User=coti
 Restart=on-failure
